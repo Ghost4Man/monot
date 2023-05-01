@@ -126,7 +126,7 @@
         canvas.save();
 
         const foregroundColor = darkTheme ? "silver" : "black";
-        const gray = darkTheme ? "#666" : "silver";
+        const gray = darkTheme ? "#888" : "silver";
         const red = darkTheme ? "#f22" : "red";
         const green = darkTheme ? "lime" : "#3d0";
         const vertexCircleRadius = 6;
@@ -145,6 +145,7 @@
         // Draw the scan line
         canvas.beginPath().strokeLine(sliderPosition, 0, sliderPosition, height, red);
 
+        // Draw the vertices of the polygon
         for (let i = 0; i < points.length; i++) {
             const [x, y] = points[i];
             canvas.beginPath().plotCircle(x, y, vertexCircleRadius);
@@ -160,9 +161,12 @@
         }
 
         if (triangulationState) {
+            // Draw vertices in the queue
             for (const vertex of triangulationState.queue) {
-                canvas.beginPath().fillStar(...vertex.position, 10, 5, null, "#f60");
+                canvas.setCompositeOperation(darkTheme ? "lighten" : "darken")
+                    .beginPath().fillCircle(...vertex.position, 15, null, "#1c14")
             }
+            // Draw all diagonals (triangulation output)
             for (const [start, end] of triangulationState.diagonals) {
                 canvas.beginPath().setStrokeWidth(2).setLineDash([3, 3])
                     .strokeLine(...start.position, ...end.position, green);

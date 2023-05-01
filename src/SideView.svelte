@@ -29,7 +29,8 @@
     }
     li.left-of-scanline {
         color: var(--scanline-color);
-        border-color: var(--scanline-color);
+        border-color: var(--scanline-color); /* as fallback for color-mix */
+        border-color: color-mix(in srgb, var(--scanline-color), 50% transparent);
     }
 </style>
 
