@@ -18,7 +18,7 @@ export class Vertex {
     }
 
     isAdjacentTo(other: Vertex) {
-        return other === this.next || other === this.prev;
+        return other.equals(this.next) || other.equals(this.prev);
     }
 
     get next(): Vertex { return this.getNeighbor(+1); }
@@ -30,6 +30,11 @@ export class Vertex {
             this.sourcePolygon);
     }
 
+    equals(other: Vertex) {
+        return this.sourcePolygon === other.sourcePolygon
+            && this.index === other.index;
+    }
+    
     toString(): string {
         return `#${this.index}`;
     }
