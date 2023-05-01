@@ -21,6 +21,7 @@
   "dependencies": {
     "@types/geometric": "^2.5.0",
     "canvasimo": "^0.8.0",
+    "ella-math": "^1.4.1",
     "geometric": "^2.5.2",
     "immer": "^10.0.1",
     "itertools": "^2.1.1"

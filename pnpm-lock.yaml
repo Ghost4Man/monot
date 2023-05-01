@@ -7,6 +7,9 @@ dependencies:
   canvasimo:
     specifier: ^0.8.0
     version: 0.8.0
+  ella-math:
+    specifier: ^1.4.1
+    version: 1.4.1
   geometric:
     specifier: ^2.5.2
     version: 2.5.2
@@ -396,6 +399,10 @@ packages:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
     engines: {node: '>=8'}
     dev: true
+
+  /ella-math@1.4.1:
+    resolution: {integrity: sha512-SYyQjIDfl0k5DlEr6aNsEpcfTtlySfqk4oAcGh2RLvXw267Q3b7rWWwqXBFqJZnhN4dCaaDprfUZCacVWVH60w==}
+    dev: false
 
   /es6-promise@3.3.1:
     resolution: {integrity: sha512-SOp9Phqvqn7jtEUxPWdWfWoLmyt2VaJ6MpvP9Comy1MceMXqE6bxvaTu4iaxpYYPzhny28Lc+M87/c2cPK6lDg==}

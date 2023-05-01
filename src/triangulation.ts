@@ -1,5 +1,6 @@
-import type { Point, Polygon } from "geometric";
+import { type Point, type Polygon } from "geometric";
 import { produce, enablePatches, type Immutable, immerable } from "immer";
+import { Vec } from "ella-math";
 import { StateTrace } from "./StateTrace";
 
 enablePatches();
@@ -23,6 +24,9 @@ export class Vertex {
 
     get next(): Vertex { return this.getNeighbor(+1); }
     get prev(): Vertex { return this.getNeighbor(-1); }
+
+    get isOnBottomChain() { return this.prev.position[0] < this.position[0]; }
+    get isOnTopChain() { return this.prev.position[0] > this.position[0]; }
 
     getNeighbor(delta = 1): Vertex {
         return new Vertex(
@@ -74,23 +78,30 @@ export class Triangulation {
             return this.trace!.recordChange.bind(this, htmlDescription ?? "");
         }
 
-        const dummyStep = () => {
-            state = produce(state, draft => {
-            }, stepRecorder());
+        const dummyStep = (htmlDescription: string) => {
+            state = produce(state, _ => { }, stepRecorder(htmlDescription));
         }
-        
+
         const enqueue = (vertices: Vertex[]) => {
             state = produce(state, draft => {
                 draft.queue.push(...vertices);
             }, stepRecorder(`add [${vertices.join(", ")}] to the queue`));
         }
 
-        const dequeue = () => {
+        const dequeue = (index = 0) => {
             let vertex: Vertex | undefined;
             state = produce(state, draft => {
-                vertex = draft.queue.shift();
-            }, stepRecorder());
+                vertex = (index > 0)
+                    ? draft.queue.splice(index, 1)[0]
+                    : draft.queue.shift();
+            }, stepRecorder(`remove ${state.queue[index]} from the queue`));
             return vertex;
+        }
+
+        const addDiagonal = (start: Vertex, end: Vertex, htmlDescription = "add diagonal") => {
+            state = produce(state, draft => {
+                draft.diagonals.push([start, end]);
+            }, stepRecorder(htmlDescription));
         }
 
         state = produce(state, draft => {
@@ -99,20 +110,62 @@ export class Triangulation {
                 .sort((a, b) => a.position[0] - b.position[0]);
         }, stepRecorder("sort vertices by X coordinate"));
 
+        dummyStep("mark whether a vertex is on the top or bottom polygonal chain");
+
         enqueue(state.sortedVertices.slice(0, 2));
 
-        // TODO: the rest of the triangulation algorithm
-        
-        state = produce(state, draft => {
-            draft.diagonals.push([
-                this.vertexAt(3),
-                this.vertexAt(5)
-            ]);
-        }, stepRecorder());
-        
+        for (let i = 2; i < state.sortedVertices.length; i++) {
+            const vertex = state.sortedVertices[i];
+
+            if (vertex.isAdjacentTo(state.queue.at(-1)!)) {
+                state = produce(state, draft => {
+                    draft.activeVertex = vertex;
+                }, stepRecorder("next vertex (on the same chain)"));
+                
+                enqueue([vertex]);
+
+                // try make triangle
+                while (state.queue.length >= 3) {
+                    const [a,b,c] = state.queue;
+                    if (this.isInwardsTurn([a,b,c])) {
+                        addDiagonal(a, c, `since [${[a,b,c]}] make an <b>inwards</b> turn, <br>
+                            we can add a diagonal from ${a} to ${c}`);
+                        const removed = dequeue(1); // remove B
+                        console.assert(removed != null, "dequeue didn't actually remove the vertex?");
+                    }
+                    else {
+                        dummyStep(`[${[a,b,c]}] make an <b>outwards</b> turn, <br>
+                            so we cannot add any diagonal`)
+                        break;
+                    }
+                }
+            }
+            else {
+                state = produce(state, draft => {
+                    draft.activeVertex = vertex;
+                }, stepRecorder("next vertex (from the opposite chain)"));
+            }
+        }
+                
         return state;
     }
 
+    private isInwardsTurn([a, b, c]: Vertex[]): boolean {
+        const areOnBottomChain = b.isOnBottomChain && c.isOnBottomChain;
+        const areOnTopChain = b.isOnTopChain && c.isOnTopChain;
+        console.assert(areOnBottomChain !== areOnTopChain,
+            "the three vertices should be on exactly one of the two chains", [a, b, c]);
+
+        const [vA, vB, vC] = [a, b, c].map(v => Vec.fromArray(v.position));
+        const [vAB, vBC] = [vB.sub(vA), vC.sub(vB)];
+
+        return areOnBottomChain
+            ? to3D(vAB).cross(to3D(vBC)).z < 0
+            : to3D(vAB).cross(to3D(vBC)).z > 0;
+
+        function to3D(v: Vec): Vec { return new Vec(v.x, v.y, 0); }
+    }
+    
     private vertexAt(index: number): Vertex {
         return new Vertex(index, this.polygon);
     }
