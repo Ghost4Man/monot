@@ -25,6 +25,7 @@
   --gray-500: hsl(0, 0%, 50%);
   --gray-700: hsl(0, 0%, 70%);
   --gray-800: hsl(0, 0%, 80%);
+  --gray-900: hsl(0, 0%, 90%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -52,6 +53,7 @@
     --gray-500: hsl(0, 0%, 60%);
     --gray-700: hsl(0, 0%, 40%);
     --gray-800: hsl(0, 0%, 30%);
+    --gray-900: hsl(0, 0%, 20%);
   }
 }
 

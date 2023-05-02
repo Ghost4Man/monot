@@ -10,7 +10,7 @@
     let triangulation: Triangulation|null = null;
     let points = getDefaultPolygon();
     let displayVertexIndices = true;
-    let sliderPosition: number = 0;
+    let sliderPosition: number = -1;
     let width: number;
     let zoomLevel: number;
 
@@ -19,6 +19,10 @@
     darkThemeMediaQuery.addEventListener("change", event => { darkTheme = event.matches; });
 
     $: mode = triangulation != null ? CanvasMode.ReadOnly : CanvasMode.Editable;
+    
+    $: shouldShowScanlineSlider = triangulation?.trace?.stepIndex === 1;
+    // whenever the slider's visibility changes, reset its value
+    $: shouldShowScanlineSlider, sliderPosition = -1;
     
     function getDefaultPolygon(): Point[] {
         return [
@@ -87,11 +91,22 @@
     }
     aside {
         flex: 1 0;
-        border: 1px solid #8888;
+        border: 1px solid var(--gray-800);
         padding: 0.5em;
     }
     input[type=range] {
         width: 100%;
+    }
+    .scanline-slider {
+        accent-color: var(--scanline-color);
+    }
+    .floating-controls {
+        position: absolute;
+        background: var(--gray-900);
+        width: 100%;
+        bottom: 0;
+        padding-top: 0.3em;
+        z-index: 1;
     }
     .button-bar {
         display: flex;
@@ -132,22 +147,27 @@
             Show vertex indices
         </label>
 
-        <label>
-            Scan line position:
-            <input type="range" id="slider" min="0" max={width / zoomLevel}
-                bind:value={sliderPosition} />
-        </label>
+        <div style="position:relative">
+            <DemoCanvas
+                bind:points
+                bind:width
+                bind:zoomLevel
+                {mode}    
+                {darkTheme}
+                {triangulation}
+                {displayVertexIndices}
+                {sliderPosition}
+                />
 
-        <DemoCanvas
-            bind:points
-            bind:width
-            bind:zoomLevel
-            {mode}    
-            {darkTheme}
-            {triangulation}
-            {displayVertexIndices}
-            {sliderPosition}
-            />
+            {#if shouldShowScanlineSlider}
+                <label class="floating-controls">
+                    Scan line position:
+                    <input type="range" id="slider" class="scanline-slider"
+                        min="0" max={width / zoomLevel}
+                        bind:value={sliderPosition} />
+                </label>
+            {/if}
+        </div>
     </main>
     
     {#if triangulation?.trace?.state}
