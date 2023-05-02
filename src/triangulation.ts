@@ -89,16 +89,19 @@ export class Triangulation {
         }
 
         const dequeue = (index = 0) => {
-            let vertex: Vertex | undefined;
+            let vertex = state.queue.at(index);
             state = produce(state, draft => {
-                vertex = (index > 0)
-                    ? draft.queue.splice(index, 1)[0]
-                    : draft.queue.shift();
-            }, stepRecorder(`remove ${state.queue[index]} from the queue`));
+                if (index != 0)
+                    draft.queue.splice(index, 1)[0]
+                else
+                    draft.queue.shift();
+            }, stepRecorder(`remove ${vertex} from the queue`));
             return vertex;
         }
 
         const addDiagonal = (start: Vertex, end: Vertex, htmlDescription = "add diagonal") => {
+            if (start.isAdjacentTo(end))
+                return false;
             state = produce(state, draft => {
                 draft.diagonals.push([start, end]);
             }, stepRecorder(htmlDescription));
@@ -126,11 +129,14 @@ export class Triangulation {
 
                 // try make triangle
                 while (state.queue.length >= 3) {
-                    const [a,b,c] = state.queue;
+                    // look at 3 points last added to the queue
+                    const a = state.queue.at(-3)!;
+                    const b = state.queue.at(-2)!;
+                    const c = state.queue.at(-1)!;
                     if (this.isInwardsTurn([a,b,c])) {
                         addDiagonal(a, c, `since [${[a,b,c]}] make an <b>inwards</b> turn, <br>
                             we can add a diagonal from ${a} to ${c}`);
-                        const removed = dequeue(1); // remove B
+                        const removed = dequeue(-2); // remove B
                         console.assert(removed != null, "dequeue didn't actually remove the vertex?");
                     }
                     else {
@@ -144,9 +150,21 @@ export class Triangulation {
                 state = produce(state, draft => {
                     draft.activeVertex = vertex;
                 }, stepRecorder("next vertex (from the opposite chain)"));
+
+                while (state.queue.length > 1) {
+                    const removed = dequeue()!;
+                    addDiagonal(removed, vertex,
+                        `add a diagonal between the active vertex and
+                        the vertex we removed from the queue`);
+                }
+
+                addDiagonal(state.queue[0], vertex,
+                    `and finally, add diagonal to the last vertex in the queue
+                    without removing it`);
+                enqueue([vertex]);
             }
         }
-                
+
         return state;
     }
 
