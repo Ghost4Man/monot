@@ -114,25 +114,25 @@
                 <button class="primary" on:click={() => triangulate()}>
                     &#x25B6; Triangulate
                 </button>
+                <button class="tertiary" on:click={() => points = getDefaultPolygon()}>
+                    Reset to default polygon
+                </button>
+                <button class="tertiary" on:click={() => copyPolygonToClipboard(points)}>
+                    Copy polygon data to clipboard
+                </button>
             {:else}
                 <button class="primary" on:click={() => triangulation = null}>
                     &#9198; Edit Polygon
                 </button>
+                <button class="secondary" on:click={() => stepBackward()}
+                        disabled={!triangulation?.trace?.canGoBackward}>
+                    &#x1F850; Prev
+                </button>
+                <button class="secondary" on:click={() => stepForward()}
+                        disabled={!triangulation?.trace?.canGoForward}>
+                    &#x1F852; Next
+                </button>
             {/if}
-            <button class="secondary" on:click={() => stepBackward()}
-                    disabled={!triangulation?.trace?.canGoBackward}>
-                &#x1F850; Prev
-            </button>
-            <button class="secondary" on:click={() => stepForward()}
-                    disabled={!triangulation?.trace?.canGoForward}>
-                &#x1F852; Next
-            </button>
-            <button class="tertiary" on:click={() => points = getDefaultPolygon()}>
-                Reset to default polygon
-            </button>
-            <button class="tertiary" on:click={() => copyPolygonToClipboard(points)}>
-                Copy polygon data to clipboard
-            </button>
         </div>
 
         <label>
