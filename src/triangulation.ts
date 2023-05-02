@@ -64,30 +64,29 @@ export class Triangulation {
     constructor(polygon: Polygon) {
         this.polygon = structuredClone(polygon);
     }
-
-    check(): "ok" | string {
-        return "ok";
-    }
     
     triangulate(): TriangulationState {
         let state = new TriangulationState();
 
         this.trace = new StateTrace<TriangulationState>(state);
 
+        // helper functions for producing steps with recorded mutations:
         const stepRecorder = (htmlDescription?: string) => {
             return this.trace!.recordChange.bind(this, htmlDescription ?? "");
         }
-
         const dummyStep = (htmlDescription: string) => {
             state = produce(state, _ => { }, stepRecorder(htmlDescription));
         }
-
+        const setActiveVertex = (vertex: Vertex, htmlDescription: string) => {
+            state = produce(state, draft => {
+                draft.activeVertex = vertex;
+            }, stepRecorder(htmlDescription));
+        }
         const enqueue = (vertices: Vertex[]) => {
             state = produce(state, draft => {
                 draft.queue.push(...vertices);
             }, stepRecorder(`add [${vertices.join(", ")}] to the queue`));
         }
-
         const dequeue = (index = 0) => {
             let vertex = state.queue.at(index);
             state = produce(state, draft => {
@@ -98,7 +97,6 @@ export class Triangulation {
             }, stepRecorder(`remove ${vertex} from the queue`));
             return vertex;
         }
-
         const addDiagonal = (start: Vertex, end: Vertex, htmlDescription = "add diagonal") => {
             if (start.isAdjacentTo(end))
                 return false;
@@ -107,12 +105,19 @@ export class Triangulation {
             }, stepRecorder(htmlDescription));
         }
 
+        // First sort the vertices by the X coordinate
         state = produce(state, draft => {
             draft.sortedVertices = this.polygon
                 .map((_, i, poly) => new Vertex(i, poly))
                 .sort((a, b) => a.position[0] - b.position[0]);
         }, stepRecorder("sort vertices by X coordinate"));
 
+        const badVertex = findVertexViolatingMonotonicity(state.sortedVertices);
+        if (badVertex != null) {
+            setActiveVertex(badVertex, "this polygon is <b>not monotone</b>!");
+            return state;
+        }
+        
         dummyStep("mark whether a vertex is on the top or bottom polygonal chain");
 
         enqueue(state.sortedVertices.slice(0, 2));
@@ -121,9 +126,7 @@ export class Triangulation {
             const vertex = state.sortedVertices[i];
 
             if (vertex.isAdjacentTo(state.queue.at(-1)!)) {
-                state = produce(state, draft => {
-                    draft.activeVertex = vertex;
-                }, stepRecorder("next vertex (on the same chain)"));
+                setActiveVertex(vertex, "next vertex (on the same chain)");
                 
                 enqueue([vertex]);
 
@@ -193,3 +196,18 @@ export class Triangulation {
 }
 
 function mod(n: number, m: number) { return ((n % m) + m) % m; }
+
+function findVertexViolatingMonotonicity(sortedVertices: Vertex[]): Vertex | null {
+    // for each vertex except the first and last
+    for (let i = 1; i < sortedVertices.length - 1; i++) {
+        const vertex = sortedVertices[i];
+        const nextIsToTheLeft = vertex.next.position[0] < vertex.position[0];
+        const prevIsToTheLeft = vertex.prev.position[0] < vertex.position[0];
+        // if they are both to the left or both to the right, the polygon is not monotone
+        if (nextIsToTheLeft === prevIsToTheLeft) {
+            return vertex;
+        }
+    }
+    return null;
+}
+

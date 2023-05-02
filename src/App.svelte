@@ -51,7 +51,6 @@
 
     function triangulate() {
         triangulation = new Triangulation(points);
-        console.assert(triangulation.check() == "ok");
         triangulation.triangulate();
     }
 
