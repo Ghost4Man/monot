@@ -134,7 +134,7 @@ export class Triangulation {
                     const b = state.queue.at(-2)!;
                     const c = state.queue.at(-1)!;
                     if (this.isInwardsTurn([a,b,c])) {
-                        addDiagonal(a, c, `since [${[a,b,c]}] make an <b>inwards</b> turn, <br>
+                        addDiagonal(a, c, `since [${[a,b,c]}] make an <b>inwards</b> turn,
                             we can add a diagonal from ${a} to ${c}`);
                         const removed = dequeue(-2); // remove B
                         console.assert(removed != null, "dequeue didn't actually remove the vertex?");

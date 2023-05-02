@@ -79,8 +79,8 @@
     }
     main {
         flex: 2 0;
-        /* background: #0f31; */
-        
+    }
+    main, aside {
         display: flex;
         flex-direction: column;
         gap: 0.6em;
@@ -89,7 +89,6 @@
         flex: 1 0;
         border: 1px solid #8888;
         padding: 0.5em;
-        /* background: #f2f2; */
     }
     input[type=range] {
         width: 100%;
@@ -98,11 +97,12 @@
         display: flex;
         flex-flow: row wrap;
         gap: 0.2em;
-        margin-top: 1em;
     }
     .step-description {
         padding: 0.5em;
-        margin-top: 0;
+        margin: 0;
+        line-height: 1.2;
+        min-height: calc(1.2em * 3); /* reserve 3 lines to prevent jumping */
         background: var(--shade-900);
     }
 </style>
@@ -123,14 +123,6 @@
             {:else}
                 <button class="primary" on:click={() => triangulation = null}>
                     &#9198; Edit Polygon
-                </button>
-                <button class="secondary" on:click={() => stepBackward()}
-                        disabled={!triangulation?.trace?.canGoBackward}>
-                    &#x1F850; Prev
-                </button>
-                <button class="secondary" on:click={() => stepForward()}
-                        disabled={!triangulation?.trace?.canGoForward}>
-                    &#x1F852; Next
                 </button>
             {/if}
         </div>
@@ -161,6 +153,17 @@
     {#if triangulation?.trace?.state}
         {@const trace = triangulation.trace}
         <aside>
+            <div class="button-bar">
+                <button class="secondary" on:click={() => stepBackward()}
+                        disabled={!triangulation?.trace?.canGoBackward}>
+                    &#x2BC7; Prev
+                </button>
+                <button class="secondary" on:click={() => stepForward()}
+                        disabled={!triangulation?.trace?.canGoForward}>
+                    &#x2BC8; Next
+                </button>
+            </div>
+
             <label>
                 Step: {trace.stepIndex}/{trace.steps.length}
                 <input type="range" id="step"

@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { Point } from "geometric";
     import { type TriangulationState, type Vertex } from "./triangulation";
 
     export let state: TriangulationState;
@@ -12,10 +11,9 @@
         background: #8883;
     }
     dt { font-weight: bold; }
+    dd { margin: 0.3em 0 0 1em; }
     dd + dt { margin-top: 1em; }
     dd > ul { margin: 0; padding: 0; }
-    /* h3 { margin-bottom: 0; }
-    h3 + * { margin-top: 0; } */
     .horizontal-list {
         display: flex;
         flex-flow: row wrap;
