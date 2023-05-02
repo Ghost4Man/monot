@@ -133,14 +133,16 @@ export class Triangulation {
                     const a = state.queue.at(-3)!;
                     const b = state.queue.at(-2)!;
                     const c = state.queue.at(-1)!;
-                    if (this.isInwardsTurn([a,b,c])) {
+                    const inwardsTurn = this.isInwardsTurn([a,b,c]);
+                    if (inwardsTurn) {
                         addDiagonal(a, c, `since [${[a,b,c]}] make an <b>inwards</b> turn,
                             we can add a diagonal from ${a} to ${c}`);
-                        const removed = dequeue(-2); // remove B
-                        console.assert(removed != null, "dequeue didn't actually remove the vertex?");
+                        dequeue(-2); // remove B
                     }
                     else {
-                        dummyStep(`[${[a,b,c]}] make an <b>outwards</b> turn, <br>
+                        dummyStep((inwardsTurn === null)
+                            ? `we are at the rightmost vertex`
+                            : `[${[a,b,c]}] make an <b>outwards</b> turn, <br>
                             so we cannot add any diagonal`)
                         break;
                     }
@@ -168,11 +170,12 @@ export class Triangulation {
         return state;
     }
 
-    private isInwardsTurn([a, b, c]: Vertex[]): boolean {
+    private isInwardsTurn([a, b, c]: Vertex[]): boolean | null {
         const areOnBottomChain = b.isOnBottomChain && c.isOnBottomChain;
         const areOnTopChain = b.isOnTopChain && c.isOnTopChain;
-        console.assert(areOnBottomChain !== areOnTopChain,
-            "the three vertices should be on exactly one of the two chains", [a, b, c]);
+        if (areOnBottomChain === areOnTopChain) {
+            return null;
+        }
 
         const [vA, vB, vC] = [a, b, c].map(v => Vec.fromArray(v.position));
         const [vAB, vBC] = [vB.sub(vA), vC.sub(vB)];
