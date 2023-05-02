@@ -11,16 +11,15 @@
   --accent-color: var(--shade-500);
 
   /* Shades of accent color */
-  --shade-050: hsl(200, 40%, 23%);
-  --shade-100: hsl(200, 44%, 26%);
-  --shade-200: hsl(200, 46%, 30%);
-  --shade-300: hsl(200, 53%, 35%);
-  --shade-400: hsl(200, 56%, 43%);
-  --shade-500: hsl(200, 64%, 51%);
+  --shade-100: hsl(200, 40%, 25%);
+  --shade-200: hsl(200, 45%, 30%);
+  --shade-300: hsl(200, 50%, 35%);
+  --shade-400: hsl(200, 55%, 45%);
+  --shade-500: hsl(200, 65%, 50%);
   --shade-600: hsl(200, 100%, 60%);
-  --shade-700: hsl(200, 90%, 74%);
-  --shade-800: hsl(200, 95%, 86%);
-  --shade-900: hsl(200, 91%, 91%);
+  --shade-700: hsl(200, 90%, 75%);
+  --shade-800: hsl(200, 95%, 85%);
+  --shade-900: hsl(200, 90%, 90%);
   
   --gray-200: hsl(0, 0%, 30%);
   --gray-500: hsl(0, 0%, 50%);
@@ -39,16 +38,15 @@
     --accent-color: var(--shade-500);
 
     /* Shades of accent color */
-    --shade-050: hsl(200, 100%, 97%);
-    --shade-100: hsl(200, 96%, 90%);
-    --shade-200: hsl(200, 93%, 83%);
-    --shade-300: hsl(200, 90%, 69%);
-    --shade-400: hsl(200, 85%, 57%);
-    --shade-500: hsl(200, 100%, 52%);
+    --shade-100: hsl(200, 95%, 90%);
+    --shade-200: hsl(200, 90%, 80%);
+    --shade-300: hsl(200, 90%, 70%);
+    --shade-400: hsl(200, 85%, 55%);
+    --shade-500: hsl(200, 100%, 55%);
     --shade-600: hsl(200, 100%, 40%);
     --shade-700: hsl(200, 100%, 37%);
     --shade-800: hsl(200, 100%, 32%);
-    --shade-900: hsl(200, 63%, 24%);
+    --shade-900: hsl(200, 60%, 25%);
   
     --gray-200: hsl(0, 0%, 75%);
     --gray-500: hsl(0, 0%, 60%);
@@ -62,8 +60,7 @@ html {
   background-color: var(--bg-color);
 
   font-family: Roboto, "Open Sans", Tahoma, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  line-height: 1.2;
 }
 
 a {
@@ -79,7 +76,6 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  /* place-items: center; */
   min-width: 320px;
   min-height: 100vh;
 }
@@ -100,9 +96,6 @@ h1 {
 
 #app {
   padding: 0.5rem 1.5rem;
-  /* max-width: 1280px; */
-  /* width: calc(100% - 4rem); */
-  /* margin: 0 auto; */
 }
 
 button {
