@@ -8,6 +8,7 @@
     import * as geometric from "geometric";
     import { Canvasimo } from 'canvasimo';
     import { Triangulation, Vertex } from "./triangulation";
+    import { Vec } from "ella-math";
 
     export let mode: CanvasMode;
     export let points: Point[];
@@ -118,7 +119,13 @@
     // Redraw when some internal variables changes
     $: draggingIndex,
         requestAnimationFrame(draw);
-        
+
+    $: edgeVectors = points.map((p, i, pts) => {
+        const v = Vec.fromArray(p);
+        const vNext = Vec.fromArray(pts[(i + 1) % pts.length]);
+        return vNext.sub(v);
+    });
+
     function draw()
     {
         if (!canvas) return;
@@ -129,7 +136,7 @@
         const gray = darkTheme ? "#888" : "silver";
         const red = darkTheme ? "#f22" : "red";
         const green = darkTheme ? "lime" : "#3d0";
-        const vertexCircleRadius = 6;
+        const vertexCircleRadius = 4;
         const triangulationState = triangulation?.trace?.state;
         
         canvas.clearRect(0, 0, width, height);
@@ -145,30 +152,44 @@
         // Draw the scan line
         canvas.beginPath().strokeLine(sliderPosition, 0, sliderPosition, height, red);
 
+        // Draw a scan line at the active vertex
+        let activeVertexX = triangulationState?.activeVertex?.position[0];
+        if (activeVertexX) {
+            canvas.save().beginPath().setStrokeDash([5, 5])
+                .strokeLine(activeVertexX, 0, activeVertexX, height, green)
+                .restore();
+        }
+        
         // Draw the vertices of the polygon
         for (let i = 0; i < points.length; i++) {
             const [x, y] = points[i];
-            canvas.beginPath().plotCircle(x, y, vertexCircleRadius);
+            const [color, radiusMultiplier] =
+                (i === draggingIndex) ? [, 2, ] :
+                (i === triangulation?.trace?.state.activeVertex?.index) ? [green, 1.5, ] :
+                (x < sliderPosition) ? [red, , ] :
+                [, , ];
+            canvas.beginPath().plotCircle(x, y, vertexCircleRadius * (radiusMultiplier ?? 1));
             // Highlight dragged vertex and vertices to the left of the scanline
-            canvas.fill(
-                (i === draggingIndex) ? foregroundColor :
-                (i === triangulation?.trace?.state.activeVertex?.index) ? green :
-                (x < sliderPosition) ? red :
-                gray);
+            canvas.fill(color ?? foregroundColor);
             if (displayVertexIndices) {
-                canvas.fillText(i.toString(), x-10, y-10);
+                const normalVector = rot90CW(edgeVectors[i].normalized.add(edgeVectors.at(i - 1)!.normalized));
+                const labelDir = normalVector.normalized.mul(16);
+                canvas.setTextAlign("center").setTextBaseline("middle")
+                    .fillText(i.toString(), x + labelDir.x, y + labelDir.y);
             }
         }
 
         if (triangulationState) {
             // Draw vertices in the queue
+            canvas.save().setCompositeOperation(darkTheme ? "lighten" : "darken")
             for (const vertex of triangulationState.queue) {
-                canvas.setCompositeOperation(darkTheme ? "lighten" : "darken")
-                    .beginPath().fillCircle(...vertex.position, 15, null, "#1c14")
+                canvas.beginPath().fillCircle(...vertex.position, 15, null, "#1c14")
             }
+            canvas.restore()
+
             // Draw all diagonals (triangulation output)
             for (const [start, end] of triangulationState.diagonals) {
-                canvas.beginPath().setStrokeWidth(2).setLineDash([3, 3])
+                canvas.beginPath().setStrokeWidth(2)
                     .strokeLine(...start.position, ...end.position, green);
             }
         }
@@ -178,6 +199,10 @@
 
     function clamp(x: number, min: number, max: number) {
         return Math.max(min, Math.min(x, max));
+    }
+
+    function rot90CW(v: Vec) {
+        return new Vec(-v.y, v.x);
     }
 </script>
 
