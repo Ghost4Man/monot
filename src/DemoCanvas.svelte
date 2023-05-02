@@ -96,7 +96,7 @@
     let redraws = 0;
     
     onMount(() => {
-        canvas = new Canvasimo(canvasElement); //.getContext("2d")!;
+        canvas = new Canvasimo(canvasElement);
 
         canvasElement.addEventListener("dblclick", handleDoubleClick);
         canvasElement.addEventListener("mousedown", handleMouseDown);
@@ -181,11 +181,11 @@
 
         if (triangulationState) {
             // Draw vertices in the queue
-            canvas.save().setCompositeOperation(darkTheme ? "lighten" : "darken")
+            canvas.save().setCompositeOperation(darkTheme ? "lighten" : "darken");
             for (const vertex of triangulationState.queue) {
-                canvas.beginPath().fillCircle(...vertex.position, 15, null, "#1c14")
+                canvas.beginPath().fillCircle(...vertex.position, 15, null, "#1c17");
             }
-            canvas.restore()
+            canvas.restore();
 
             // Draw all diagonals (triangulation output)
             for (const [start, end] of triangulationState.diagonals) {
