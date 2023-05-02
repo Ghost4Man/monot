@@ -6,5 +6,6 @@ export default defineConfig({
   plugins: [svelte()],
   build: {
     minify: false
-  }
+  },
+  base: '' // use relative URLs
 })
