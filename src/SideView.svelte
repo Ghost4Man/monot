@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { type TriangulationState, type Vertex } from "./triangulation";
-
+    import { type TriangulationState } from "./triangulation";
     export let state: TriangulationState;
     export let sliderPosition: number = 0;
 </script>

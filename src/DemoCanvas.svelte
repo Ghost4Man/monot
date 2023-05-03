@@ -6,9 +6,10 @@
     import { onMount, afterUpdate } from "svelte";
     import type { Point } from "geometric";
     import * as geometric from "geometric";
-    import { Canvasimo } from 'canvasimo';
-    import { Triangulation, Vertex } from "./triangulation";
     import { Vec } from "ella-math";
+    import { Canvasimo } from "canvasimo";
+    import { Vertex } from "./Vertex";
+    import { Triangulation } from "./triangulation";
 
     export let mode: CanvasMode;
     export let points: Point[];
