@@ -25,6 +25,7 @@
 
     let draggingIndex = -1;
     const pointDragRadius = 10;
+    const pointOnEdgeEpsilon = 1000;
     
     function screenToWorld(p: Point): Point {
         return [p[0] / zoomLevel, p[1] / zoomLevel];
@@ -44,7 +45,11 @@
         }
         return null;
     }
-    
+
+    function getMousePosition(event: MouseEvent) {
+        return screenToWorld([event.offsetX, event.offsetY]);
+    }
+
     function handleDragMove(event: MouseEvent) {
         if (mode != CanvasMode.Editable)
             return;
@@ -63,16 +68,16 @@
         if (mode != CanvasMode.Editable)
             return;
 
-        const mousePos: Point = screenToWorld([event.offsetX, event.offsetY]);
+        const mousePos = getMousePosition(event);
         let vertexIndex = findVertexAt(mousePos, pointDragRadius * 2)?.index;
         if (vertexIndex != null) {
-            points.splice(vertexIndex, 1);
+            points.splice(vertexIndex, 1); // remove vertex from polygon
             points = points;
         }
     }
     
     function handleMouseDown(event: MouseEvent) {
-        const mousePos: Point = screenToWorld([event.offsetX, event.offsetY]);
+        const mousePos = getMousePosition(event);
         
         // Check if the mouse is on a polygon vertex
         draggingIndex = findVertexAt(mousePos, pointDragRadius)?.index ?? -1;
@@ -84,7 +89,7 @@
 
         // If mouse is on a polygon edge, add a new vertex
         for (let i = 0; i < points.length; i++) {
-            if (geometric.pointOnLine(mousePos, [points.at(i-1)!, points[i]], 1000)) {
+            if (geometric.pointOnLine(mousePos, [points.at(i-1)!, points[i]], pointOnEdgeEpsilon)) {
                 points.splice(i, 0, mousePos);
                 points = points;
                 draggingIndex = i;
