@@ -27,18 +27,17 @@
     const pointDragRadius = 10;
     const pointOnEdgeEpsilon = 1000;
     
-    function screenToWorld(p: Point): Point {
-        return [p[0] / zoomLevel, p[1] / zoomLevel];
+    function screenToWorld([x, y]: Point): Point {
+        return [x / zoomLevel, y / zoomLevel];
     }
 
-    function worldToScreen(p: Point): Point {
-        return [p[0] * zoomLevel, p[1] * zoomLevel];
+    function worldToScreen([x, y]: Point): Point {
+        return [x * zoomLevel, y * zoomLevel];
     }
 
-    function findVertexAt(position: Point, radius: number): Vertex | null {
-        for (let i = 0; i < points.length; i++) {
-            const dx = points[i][0] - position[0];
-            const dy = points[i][1] - position[1];
+    function findVertexAt([x, y]: Point, radius: number): Vertex | null {
+        for (const [i, [px, py]] of points.entries()) {
+            const [dx, dy] = [px - x, py - y];
             if (dx*dx + dy*dy <= radius * radius) {
                 return new Vertex(i, points);
             }
