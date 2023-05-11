@@ -46,7 +46,8 @@
     }
 
     function getMousePosition(event: MouseEvent) {
-        return screenToWorld([event.offsetX, event.offsetY]);
+        return screenToWorld([event.offsetX, event.offsetY])
+            .map(x => Math.max(0, x)) as Point; // so that no coordinate is outside the bounds
     }
 
     function handlePointerMove(event: PointerEvent) {
