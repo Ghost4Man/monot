@@ -49,13 +49,12 @@
         return screenToWorld([event.offsetX, event.offsetY]);
     }
 
-    function handleDragMove(event: MouseEvent) {
+    function handlePointerMove(event: PointerEvent) {
         if (mode != CanvasMode.Editable)
             return;
 
         if (draggingIndex >= 0) {
-            points[draggingIndex][0] += event.movementX / zoomLevel;
-            points[draggingIndex][1] += event.movementY / zoomLevel;
+            points[draggingIndex] = getMousePosition(event);
         }
     }
     
@@ -75,24 +74,24 @@
         }
     }
     
-    function handleMouseDown(event: MouseEvent) {
+    function handlePointerDown(event: PointerEvent) {
         const mousePos = getMousePosition(event);
+        const pointerRadiusMultiplier = event.pointerType === "touch" ? 2 : 1;
         
         // Check if the mouse is on a polygon vertex
-        draggingIndex = findVertexAt(mousePos, pointDragRadius)?.index ?? -1;
-        if (draggingIndex >= 0)
-            return;
-
+        draggingIndex = findVertexAt(mousePos, pointDragRadius * pointerRadiusMultiplier)?.index ?? -1;
         if (mode != CanvasMode.Editable)
             return;
 
-        // If mouse is on a polygon edge, add a new vertex
-        for (let i = 0; i < points.length; i++) {
-            if (geometric.pointOnLine(mousePos, [points.at(i-1)!, points[i]], pointOnEdgeEpsilon)) {
-                points.splice(i, 0, mousePos);
-                points = points;
-                draggingIndex = i;
-                return;
+        if (draggingIndex < 0) {
+            // If mouse is on a polygon edge, add a new vertex
+            for (let i = 0; i < points.length; i++) {
+                if (geometric.pointOnLine(mousePos, [points.at(i-1)!, points[i]], pointOnEdgeEpsilon)) {
+                    points.splice(i, 0, mousePos);
+                    points = points;
+                    draggingIndex = i;
+                    return;
+                }
             }
         }
     }
@@ -104,9 +103,9 @@
         canvas = new Canvasimo(canvasElement);
 
         canvasElement.addEventListener("dblclick", handleDoubleClick);
-        canvasElement.addEventListener("mousedown", handleMouseDown);
-        canvasElement.addEventListener("mousemove", handleDragMove);
-        canvasElement.addEventListener("mouseup", handleDragEnd);
+        canvasElement.addEventListener("pointerdown", handlePointerDown);
+        canvasElement.addEventListener("pointermove", handlePointerMove);
+        canvasElement.addEventListener("pointerup", handleDragEnd);
         canvasElement.addEventListener("wheel", ev => {
             const wheelMultiplier =
                 (ev.deltaMode == WheelEvent.DOM_DELTA_LINE) ? 0.02 :
@@ -217,6 +216,7 @@
         display: block;
         width: 100%;
         object-fit: none;
+        touch-action: none;
     }
     canvas:not(.editable) {
         border-style: dashed;
