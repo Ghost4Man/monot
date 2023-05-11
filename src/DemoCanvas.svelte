@@ -45,6 +45,20 @@
         return null;
     }
 
+    function updateMouseCursor(mousePos: Point) {
+        if (draggingIndex >= 0) {
+            canvasElement.style.cursor = "grabbing";
+        }
+        else {
+            const hoverVertexIndex = findVertexAt(mousePos, pointDragRadius)?.index;
+            const mouseOverEdge = geometric.pointOnPolygon(mousePos, points, pointOnEdgeEpsilon);
+            canvasElement.style.setProperty("cursor",
+                hoverVertexIndex != null ? "grab" :
+                mouseOverEdge ? "pointer" :
+                "");
+        }
+    }
+
     function getMousePosition(event: MouseEvent) {
         return screenToWorld([event.offsetX, event.offsetY])
             .map(x => Math.max(0, x)) as Point; // so that no coordinate is outside the bounds
@@ -57,10 +71,13 @@
         if (draggingIndex >= 0) {
             points[draggingIndex] = getMousePosition(event);
         }
+
+        updateMouseCursor(getMousePosition(event));
     }
-    
-    function handleDragEnd() {
+
+    function handleDragEnd(event: MouseEvent) {
         draggingIndex = -1;
+        updateMouseCursor(getMousePosition(event));
     }
 
     function handleDoubleClick(event: MouseEvent) {
