@@ -68,7 +68,7 @@
 
         const mousePos = getMousePosition(event);
         let vertexIndex = findVertexAt(mousePos, pointDragRadius * 2)?.index;
-        if (vertexIndex != null) {
+        if (vertexIndex != null && points.length > 3) {
             points.splice(vertexIndex, 1); // remove vertex from polygon
             points = points;
         }
