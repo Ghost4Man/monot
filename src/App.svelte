@@ -166,6 +166,9 @@
                         bind:value={sliderPosition} />
                 </label>
             {/if}
+
+            <button on:click={() => zoomLevel += 0.2 * zoomLevel} title="Zoom in">&plus;</button>
+            <button on:click={() => zoomLevel -= 0.2 * zoomLevel} title="Zoom out">&minus;</button>
         </div>
     </main>
     
