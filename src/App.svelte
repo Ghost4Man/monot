@@ -178,11 +178,11 @@
             <div class="button-bar">
                 <button class="secondary" on:click={() => stepBackward()}
                         disabled={!triangulation?.trace?.canGoBackward}>
-                    &#x2BC7; Prev
+                    &#x25C0; Prev
                 </button>
                 <button class="secondary" on:click={() => stepForward()}
                         disabled={!triangulation?.trace?.canGoForward}>
-                    &#x2BC8; Next
+                    &#x25B6; Next
                 </button>
             </div>
 
