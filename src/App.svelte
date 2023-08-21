@@ -80,6 +80,11 @@
         flex-flow: row nowrap;
         gap: 0.5em;
     }
+
+    @media (orientation: portrait) {
+        #appContainer { flex-direction: column; }
+    }
+
     main {
         flex: 2 0;
     }
